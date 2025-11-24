@@ -11,7 +11,38 @@
       "type": "string"
     }
   ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
   "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (create user + company)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"empresa\": {\n    \"cpf_cnpj\": \"61559628391\",\n    \"nome\": \"Minha Residência\",\n    \"tipo\": \"CNPJ\"\n  },\n  \"user\": {\n    \"nome\": \"Ronaldo de Paula\",\n    \"email\": \"ronaldodepaula@yahoo.com.br\",\n    \"senha\": \"123\"\n  }\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] },
+            "description": "Registra empresa (se não existir) e cria usuário com papel 'Admin' atribuído automaticamente. Retorna token e usuário populado."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"ronaldodepaula@yahoo.com.br\",\n  \"senha\": \"123\"\n}\n" }, "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }, "description": "Retorna token e dados do usuário (populate empresa e papel)." }, "response": [] },
+        { "name": "Me (validate token)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }, "description": "Retorna dados do usuário autenticado (requires Bearer token)." }, "response": [] },
+        { "name": "Logout", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"] }, "description": "Invalidates token (blacklist)." }, "response": [] }
+      ]
+    },
     {
       "name": "Empresas",
       "item": [
@@ -83,7 +114,7 @@
     {
       "name": "Papeis",
       "item": [
-        { "name": "Create Papel", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"empresa_id\": \"<ObjectId_empresa>\",\n  \"nome\": \"Operador\",\n  \"permissoes\": [\"LANCAR_MOVIMENTACAO\"]\n}" }, "url": { "raw": "{{baseUrl}}/papeis", "host": ["{{baseUrl}}"], "path": ["papeis"] }, "description": "`empresa_id` e `nome` obrigatórios; `permissoes` array opcional." }, "response": [] },
+        { "name": "Create Papel", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Operador\",\n  \"permissoes\": [\"LANCAR_MOVIMENTACAO\"]\n}" }, "url": { "raw": "{{baseUrl}}/papeis", "host": ["{{baseUrl}}"], "path": ["papeis"] }, "description": "`nome` obrigatório; `permissoes` array opcional. Papéis agora são globais ao sistema (não vinculados a `empresa`)." }, "response": [] },
         { "name": "Listar Papeis", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/papeis", "host": ["{{baseUrl}}"], "path": ["papeis"] }, "description": "Lista papeis por empresa." }, "response": [] },
         { "name": "Get Papel por ID", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/papeis/:id", "host": ["{{baseUrl}}"], "path": ["papeis", ":id"] }, "description": "Retorna 404 se não encontrado." }, "response": [] },
         { "name": "Atualizar Papel", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Novo Papel\"\n}" }, "url": { "raw": "{{baseUrl}}/papeis/:id", "host": ["{{baseUrl}}"], "path": ["papeis", ":id"] }, "description": "Atualiza papel." }, "response": [] },

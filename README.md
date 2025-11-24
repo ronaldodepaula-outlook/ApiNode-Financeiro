@@ -55,8 +55,9 @@ Nota: os seguintes campos/validações estão implementados nos modelos Mongoose
   - Regras: similar a `Usuario` mas sem `empresa_id`.
 
 - Papel (`/api/papeis`)
-  - Campos chave: `empresa_id` (required), `nome` (required), `permissoes` (array).
-  - Regra principal: `permissoes` é uma lista de strings representando ações autorizadas (ex.: `LANCAR_MOVIMENTACAO`). As permissões são apenas informacionais a menos que middleware de autorização seja adicionado.
+  - Campos chave: `nome` (required), `permissoes` (array).
+  - Regra principal: `permissoes` é uma lista de strings representando ações autorizadas (ex.: `LANCAR_MOVIMENTACAO`).
+  - Observação de negócio: `Papel` agora é um artefato do sistema e não está vinculado a `Empresa`. Papéis são definidos globalmente e o `Usuario.papel_id` referencia um papel do sistema; a aplicação deve aplicar regras de contexto (por empresa, se necessário) no nível da autorização.
 
 - Licença (`/api/licencas`)
   - Campos chave: `_id` (string, custom), `empresa_id` (string, required), `plano`, `data_inicio`, `data_fim`, `status` (enum: `ATIVA` | `INATIVA` | `EXPIRADA`), `limite_usuarios`, `limite_movimentacoes`.

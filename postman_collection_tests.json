@@ -1,0 +1,57 @@
+{
+  "info": {
+    "name": "ApiNode-Financeiro - Tests Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Coleção orientada a testes automatizados no Postman: contém fluxos de Auth e exemplos CRUD. Configure a variável `baseUrl` e execute as requests na ordem." 
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api", "type": "string" },
+    { "key": "token", "value": "", "type": "string" }
+  ],
+  "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (create user+company)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"empresa\": { \"cpf_cnpj\": \"00011122233\", \"nome\": \"Test Co\", \"tipo\": \"CNPJ\" },\n  \"user\": { \"nome\": \"Tester\", \"email\": \"tester@example.com\", \"senha\": \"pass123\" }\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth","register"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.test('status 201', function(){ pm.response.to.have.status(201); });",
+                  "if (json && json.token) { pm.environment.set('token', json.token); }",
+                  "if (json && json.user) { pm.environment.set('userId', json.user._id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"email\": \"tester@example.com\", \"senha\": \"pass123\" }" , "options": {} }, "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth","login"] } , "description": "Fazer login e salvar token" },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "var json = pm.response.json(); pm.test('status 200', function(){ pm.response.to.have.status(200); }); if (json && json.token) { pm.environment.set('token', json.token); } if (json && json.user) pm.environment.set('userId', json.user._id); " ] } } ]
+        },
+        { "name": "Me (validate token)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth","me"] }, "description": "Valida token e retorna usuário" }, "event": [{ "listen":"test","script":{"type":"text/javascript","exec":["pm.test('status 200', function(){ pm.response.to.have.status(200); });","var json = pm.response.json();","if (json && json.user) pm.environment.set('userId', json.user._id);"]}}] },
+        { "name": "Logout", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth","logout"] }, "description": "Invalidar token" }, "event": [{ "listen":"test","script":{"type":"text/javascript","exec":["pm.test('status 200', function(){ pm.response.to.have.status(200); });","pm.environment.unset('token');"]}}] }
+      ]
+    },
+    {
+      "name": "Tests",
+      "item": [
+        { "name": "Create Empresa (protected)", "request": { "method": "POST", "header": [{ "key":"Content-Type","value":"application/json" }, { "key":"Authorization","value":"Bearer {{token}}" }], "body": { "mode":"raw","raw": "{ \"cpf_cnpj\": \"99988877766\", \"nome\": \"Empresa Teste\", \"tipo\": \"CNPJ\" }" }, "url": { "raw": "{{baseUrl}}/empresas", "host":["{{baseUrl}}"], "path":["empresas"] } }, "event": [{ "listen":"test","script":{"type":"text/javascript","exec":["pm.test('status 201 or 200', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });","var json = pm.response.json(); if (json && json._id) pm.environment.set('empresaId', json._id);"]}}] },
+        { "name": "List Empresas", "request": { "method":"GET","header":[{ "key":"Authorization","value":"Bearer {{token}}" }], "url": { "raw":"{{baseUrl}}/empresas","host":["{{baseUrl}}"],"path":["empresas"] } }, "event":[{"listen":"test","script":{"type":"text/javascript","exec":["pm.test('status 200', function(){ pm.response.to.have.status(200); });"]}}] },
+        { "name": "Create Usuario (protected)", "request": { "method":"POST","header":[{ "key":"Content-Type","value":"application/json" },{ "key":"Authorization","value":"Bearer {{token}}" }], "body": { "mode":"raw","raw": "{ \"empresa_id\": \"{{empresaId}}\", \"nome\": \"User Test\", \"email\": \"user.test@example.com\", \"senha\": \"12345\", \"papel_id\": \"{{userPapelId}}\" }" }, "url": { "raw":"{{baseUrl}}/usuarios","host":["{{baseUrl}}"],"path":["usuarios"] } }, "event":[{"listen":"test","script":{"type":"text/javascript","exec":["pm.test('status 201 or 200', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });","var json=pm.response.json(); if(json && json._id) pm.environment.set('usuarioId', json._id);"]}}] }
+      ]
+    }
+  ]
+}

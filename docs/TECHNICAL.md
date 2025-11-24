@@ -41,10 +41,10 @@ Resumo técnico e orientações para desenvolvedores.
   - `senha: String` (required)
   - `papel_id: ObjectId` (ref Papel, required)
 
-- `Papel`:
-  - `empresa_id: ObjectId` (ref Empresa)
+-- `Papel`:
   - `nome: String` (required)
   - `permissoes: Array` (lista de permissões)
+  - Observação: `Papel` agora é um artefato do sistema (não é vinculado a uma `Empresa`). Regras de autorização devem mapear `Usuario.papel_id` para permissões globais ou por contexto aplicacional.
 
 - `Licenca` (`tb_licencas`):
   - `_id: String` (id custom)
@@ -64,6 +64,23 @@ Resumo técnico e orientações para desenvolvedores.
 - Observações específicas:
   - `usuario` GETs populam `empresa_id` e `papel_id`.
   - `movimentacao.create` registra objeto e pode opcionalmente gravar histórico.
+
+13. Autenticação (nova)
+- Endpoints:
+  - `POST /api/auth/register` — registra empresa (se necessário) e cria usuário; atribui automaticamente o `Papel` com `nome: "Admin"` ao novo usuário (cria o papel se não existir). Retorna `{ token, user }` com `user` populado em `empresa_id` e `papel_id`.
+  - `POST /api/auth/login` — autentica por `email` + `senha`, retorna `{ token, user }` (user populado).
+  - `GET /api/auth/me` — (protegida) retorna usuário autenticado com campos populados.
+  - `POST /api/auth/logout` — (protegida) invalida (blacklist) o token.
+
+- Fluxo de registro: o payload esperado pode ser:
+  ```json
+  {
+    "empresa": { "cpf_cnpj": "61559628391", "nome": "Minha Residência", "tipo": "CNPJ" },
+    "user": { "nome": "Ronaldo", "email": "r@ex.com", "senha": "123" }
+  }
+  ```
+
+- Observação de implementação: as demais rotas foram protegidas por middleware JWT; apenas `/api/auth/*` permanece pública. Logout salva o token em coleção `Token` para invalidá-lo até sua expiração.
 
 7. `baseController` (padrão)
 - A maioria dos controllers usa `baseController` para evitar repetir CRUD. Para recursos com regras customizadas (ex: `movimentacaoController.create`), o controller substitui o `create` padrão.
