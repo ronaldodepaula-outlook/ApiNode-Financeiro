@@ -4,29 +4,25 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --runInBand"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.0",
     "mongodb": "^7.0.0",
-    "mongoose": "^9.0.0",
-    "bcrypt": "^5.1.0",
-    "jsonwebtoken": "^9.0.0"
-  }
-  ,
+    "mongoose": "^9.0.0"
+  },
   "devDependencies": {
     "jest": "^29.0.0",
-    "supertest": "^6.3.0",
-    "mongodb-memory-server": "^8.12.0"
-  },
-  "scripts": {
-    "test": "jest --runInBand"
+    "mongodb-memory-server": "^8.12.0",
+    "supertest": "^6.3.0"
   },
   "jest": {
     "testEnvironment": "node",

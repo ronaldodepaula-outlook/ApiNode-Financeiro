@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Usuario = require('../models/Usuario');
 const Empresa = require('../models/Empresa');
@@ -52,7 +52,7 @@ exports.register = async (req, res) => {
     const existing = await Usuario.findOne({ email: userData.email });
     if (existing) return res.status(400).json({ error: 'Email already registered' });
 
-    const hashed = await bcrypt.hash(userData.senha, 10);
+    const hashed = bcrypt.hashSync(userData.senha, 10);
     const usuario = await Usuario.create({ nome: userData.nome || userData.email, email: userData.email, senha: hashed, empresa_id: empresa._id, papel_id: papel._id });
 
     const token = jwt.sign({ id: usuario._id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
@@ -73,7 +73,7 @@ exports.login = async (req, res) => {
     const user = await Usuario.findOne({ email }).populate('empresa_id papel_id');
     if (!user) return res.status(400).json({ error: 'Invalid credentials' });
 
-    const match = await bcrypt.compare(senha, user.senha);
+    const match = bcrypt.compareSync(senha, user.senha);
     if (!match) return res.status(400).json({ error: 'Invalid credentials' });
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });

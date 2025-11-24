@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "ApiNode-Financeiro - Tests Collection",
+    "name": "NODE JS - ApiNode-Financeiro - Tests Collection",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": "Coleção orientada a testes automatizados no Postman: contém fluxos de Auth e exemplos CRUD. Configure a variável `baseUrl` e execute as requests na ordem." 
   },
