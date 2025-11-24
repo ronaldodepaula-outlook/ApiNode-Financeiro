@@ -1,0 +1,193 @@
+{
+  "info": {
+    "name": "NODE JS - ApiNode-Financeiro - Render Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Coleção para importação no Postman — base URL apontando para Render. Configure a variável `baseUrl` se desejar mudar."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://apinode-financeiro.onrender.com/api", "type": "string" },
+    { "key": "token", "value": "", "type": "string" }
+  ],
+  "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (create user + company)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"empresa\": { \"cpf_cnpj\": \"00011122233\", \"nome\": \"Test Co\", \"tipo\": \"CNPJ\" },\n  \"user\": { \"nome\": \"Tester\", \"email\": \"tester@example.com\", \"senha\": \"pass123\" }\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth","register"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.test('status 201', function(){ pm.response.to.have.status(201); });",
+                  "if (json && json.token) { pm.environment.set('token', json.token); }",
+                  "if (json && json.user) { pm.environment.set('userId', json.user._id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"email\": \"tester@example.com\", \"senha\": \"pass123\" }" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth","login"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.test('status 200', function(){ pm.response.to.have.status(200); });",
+                  "if (json && json.token) { pm.environment.set('token', json.token); }",
+                  "if (json && json.user) pm.environment.set('userId', json.user._id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me (validate token)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth","me"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function(){ pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "if (json && json.user) pm.environment.set('userId', json.user._id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth","logout"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function(){ pm.response.to.have.status(200); });",
+                  "pm.environment.unset('token');"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "Empresas",
+      "item": [
+        {
+          "name": "Create Empresa",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": { "mode": "raw", "raw": "{ \"cpf_cnpj\": \"99988877766\", \"nome\": \"Empresa Teste\", \"tipo\": \"CNPJ\" }" },
+            "url": { "raw": "{{baseUrl}}/empresas", "host": ["{{baseUrl}}"], "path": ["empresas"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200 or 201', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });", "var json = pm.response.json(); if (json && json._id) pm.environment.set('empresaId', json._id);" ] } }]
+        },
+        {
+          "name": "List Empresas",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": { "raw": "{{baseUrl}}/empresas", "host": ["{{baseUrl}}"], "path": ["empresas"] } },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200', function(){ pm.response.to.have.status(200); });" ] } }]
+        },
+        {
+          "name": "Get Empresa by ID",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": { "raw": "{{baseUrl}}/empresas/{{empresaId}}", "host": ["{{baseUrl}}"], "path": ["empresas","{{empresaId}}"] } },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200', function(){ pm.response.to.have.status(200); });" ] } }]
+        },
+        {
+          "name": "Update Empresa",
+          "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }], "body": { "mode": "raw", "raw": "{ \"nome\": \"Empresa Atualizada\" }" }, "url": { "raw": "{{baseUrl}}/empresas/{{empresaId}}", "host": ["{{baseUrl}}"], "path": ["empresas","{{empresaId}}"] } },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200', function(){ pm.response.to.have.status(200); });" ] } }]
+        },
+        {
+          "name": "Delete Empresa",
+          "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": { "raw": "{{baseUrl}}/empresas/{{empresaId}}", "host": ["{{baseUrl}}"], "path": ["empresas","{{empresaId}}"] } },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200 or 204', function(){ pm.expect(pm.response.code).to.be.oneOf([200,204]); });" ] } }]
+        }
+      ]
+    },
+
+    {
+      "name": "Usuarios",
+      "item": [
+        { "name": "Create Usuario", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }], "body": { "mode": "raw", "raw": "{ \"empresa_id\": \"{{empresaId}}\", \"nome\": \"User Test\", \"email\": \"user.test@example.com\", \"senha\": \"12345\" }" }, "url": { "raw": "{{baseUrl}}/usuarios", "host": ["{{baseUrl}}"], "path": ["usuarios"] } }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200 or 201', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });", "var json = pm.response.json(); if (json && json._id) pm.environment.set('usuarioId', json._id);" ] } }] },
+        { "name": "List Usuarios", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": { "raw": "{{baseUrl}}/usuarios", "host": ["{{baseUrl}}"], "path": ["usuarios"] } }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200', function(){ pm.response.to.have.status(200); });" ] } }] },
+        { "name": "Get Usuario by ID", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": { "raw": "{{baseUrl}}/usuarios/{{usuarioId}}", "host": ["{{baseUrl}}"], "path": ["usuarios","{{usuarioId}}"] } }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200', function(){ pm.response.to.have.status(200); });" ] } }] },
+        { "name": "Update Usuario", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }], "body": { "mode": "raw", "raw": "{ \"nome\": \"User Updated\" }" }, "url": { "raw": "{{baseUrl}}/usuarios/{{usuarioId}}", "host": ["{{baseUrl}}"], "path": ["usuarios","{{usuarioId}}"] } }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200', function(){ pm.response.to.have.status(200); });" ] } }] },
+        { "name": "Delete Usuario", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": { "raw": "{{baseUrl}}/usuarios/{{usuarioId}}", "host": ["{{baseUrl}}"], "path": ["usuarios","{{usuarioId}}"] } }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200 or 204', function(){ pm.expect(pm.response.code).to.be.oneOf([200,204]); });" ] } }] }
+      ]
+    },
+
+    {
+      "name": "Papeis",
+      "item": [
+        { "name": "List Papeis", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": { "raw": "{{baseUrl}}/papeis", "host": ["{{baseUrl}}"], "path": ["papeis"] } }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200', function(){ pm.response.to.have.status(200); });" ] } }] },
+        { "name": "Create Papel", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }], "body": { "mode": "raw", "raw": "{ \"nome\": \"TestePapel\", \"permissoes\": [\"ADMINISTRADOR\"] }" }, "url": { "raw": "{{baseUrl}}/papeis", "host": ["{{baseUrl}}"], "path": ["papeis"] } }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200 or 201', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });", "var json = pm.response.json(); if (json && json._id) pm.environment.set('userPapelId', json._id);" ] } }] },
+        { "name": "Delete Papel by ID", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": { "raw": "{{baseUrl}}/papeis/{{userPapelId}}", "host": ["{{baseUrl}}"], "path": ["papeis","{{userPapelId}}"] } }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200 or 204', function(){ pm.expect(pm.response.code).to.be.oneOf([200,204]); });" ] } }] }
+      ]
+    },
+
+    {
+      "name": "Grupos & Subgrupos",
+      "item": [
+        { "name": "Create Grupo", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }], "body": { "mode": "raw", "raw": "{ \"nome\": \"Grupo Teste\" }" }, "url": { "raw": "{{baseUrl}}/grupos", "host": ["{{baseUrl}}"], "path": ["grupos"] } }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200 or 201', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });" ] } }] },
+        { "name": "Create Subgrupo", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }], "body": { "mode": "raw", "raw": "{ \"nome\": \"Subgrupo Teste\", \"grupo_id\": \"{{grupoId}}\" }" }, "url": { "raw": "{{baseUrl}}/subgrupos", "host": ["{{baseUrl}}"], "path": ["subgrupos"] } }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200 or 201', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });" ] } }] }
+      ]
+    },
+
+    {
+      "name": "Movimentacoes",
+      "item": [
+        { "name": "Create Movimentacao", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }], "body": { "mode": "raw", "raw": "{ \"descricao\": \"Mov Teste\", \"valor\": 100.0 }" }, "url": { "raw": "{{baseUrl}}/movimentacoes", "host": ["{{baseUrl}}"], "path": ["movimentacoes"] } }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200 or 201', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });" ] } }] },
+        { "name": "List Movimentacoes", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": { "raw": "{{baseUrl}}/movimentacoes", "host": ["{{baseUrl}}"], "path": ["movimentacoes"] } }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200', function(){ pm.response.to.have.status(200); });" ] } }] }
+      ]
+    },
+
+    {
+      "name": "Historico",
+      "item": [
+        { "name": "List Historico", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": { "raw": "{{baseUrl}}/historico", "host": ["{{baseUrl}}"], "path": ["historico"] } }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200', function(){ pm.response.to.have.status(200); });" ] } }] }
+      ]
+    },
+
+    {
+      "name": "Licencas & MasterAdmin",
+      "item": [
+        { "name": "List Licencas", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": { "raw": "{{baseUrl}}/licencas", "host": ["{{baseUrl}}"], "path": ["licencas"] } }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200', function(){ pm.response.to.have.status(200); });" ] } }] },
+        { "name": "List Master Admins", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": { "raw": "{{baseUrl}}/master-admin", "host": ["{{baseUrl}}"], "path": ["master-admin"] } }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('status 200', function(){ pm.response.to.have.status(200); });" ] } }] }
+      ]
+    }
+  ]
+}
