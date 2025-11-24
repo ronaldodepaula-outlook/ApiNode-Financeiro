@@ -1,0 +1,144 @@
+{
+  "info": {
+    "name": "ApiNode-Financeiro - Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Coleção para importação no Postman contendo todas as rotas e regras de negócio documentadas. Use a variável `baseUrl` apontando para `http://localhost:3000/api`."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Empresas",
+      "item": [
+        {
+          "name": "Create Empresa",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cpf_cnpj\": \"12345678000199\",\n  \"nome\": \"Empresa Exemplo\",\n  \"tipo\": \"CNPJ\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/empresas", "host": ["{{baseUrl}}"], "path": ["empresas"] },
+            "description": "Regras: `cpf_cnpj` (string) obrigatório e único; `nome` obrigatório; `tipo` = 'CPF' ou 'CNPJ'. Retorna 201 com o recurso criado ou 400 em validação."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Empresas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/empresas", "host": ["{{baseUrl}}"], "path": ["empresas"], "query": [{"key":"limit","value":"10","disabled":true},{"key":"skip","value":"0","disabled":true}] },
+            "description": "Suporta query params `limit` e `skip`. Retorna array de empresas."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Empresa por ID",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/empresas/:id", "host": ["{{baseUrl}}"], "path": ["empresas", ":id"] }, "description": "Retorna 404 se não encontrado." },
+          "response": []
+        },
+        {
+          "name": "Atualizar Empresa",
+          "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Novo Nome\"\n}" }, "url": { "raw": "{{baseUrl}}/empresas/:id", "host": ["{{baseUrl}}"], "path": ["empresas", ":id"] }, "description": "Atualiza campos e retorna o documento atualizado; 404 se não encontrado." },
+          "response": []
+        },
+        {
+          "name": "Excluir Empresa",
+          "request": { "method": "DELETE", "header": [], "url": { "raw": "{{baseUrl}}/empresas/:id", "host": ["{{baseUrl}}"], "path": ["empresas", ":id"] }, "description": "Remove o recurso; retorna mensagem de sucesso ou 404." },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Create Usuario",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"empresa_id\": \"<ObjectId_empresa>\",\n  \"nome\": \"João\",\n  \"email\": \"joao@ex.com\",\n  \"senha\": \"senha123\",\n  \"papel_id\": \"<ObjectId_papel>\"\n}" }, "url": { "raw": "{{baseUrl}}/usuarios", "host": ["{{baseUrl}}"], "path": ["usuarios"] }, "description": "Regras: `empresa_id`, `nome`, `email` (único), `senha`, `papel_id` são obrigatórios. GETs populam `empresa_id` e `papel_id`." },
+          "response": []
+        },
+        { "name": "Listar Usuarios", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/usuarios", "host": ["{{baseUrl}}"], "path": ["usuarios"], "query": [{"key":"limit","value":"10","disabled":true},{"key":"skip","value":"0","disabled":true}] }, "description": "Lista usuários; `empresa_id` e `papel_id` são populados pelo controlador." }, "response": [] },
+        { "name": "Get Usuario por ID", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/usuarios/:id", "host": ["{{baseUrl}}"], "path": ["usuarios", ":id"] }, "description": "Popula `empresa_id` e `papel_id`. Retorna 404 se não encontrado." }, "response": [] },
+        { "name": "Atualizar Usuario", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Nome Editado\"\n}" }, "url": { "raw": "{{baseUrl}}/usuarios/:id", "host": ["{{baseUrl}}"], "path": ["usuarios", ":id"] }, "description": "Atualiza usuário; validações do model aplicam-se (email único)." }, "response": [] },
+        { "name": "Excluir Usuario", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/usuarios/:id", "host": ["{{baseUrl}}"], "path": ["usuarios", ":id"] }, "description": "Remove usuário; 404 se não encontrado." }, "response": [] }
+      ]
+    },
+    {
+      "name": "MasterAdmin",
+      "item": [
+        { "name": "Create MasterAdmin", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Admin\",\n  \"email\": \"admin@ex.com\",\n  \"senha\": \"senha123\"\n}" }, "url": { "raw": "{{baseUrl}}/master-admin", "host": ["{{baseUrl}}"], "path": ["master-admin"] }, "description": "Email é único; senha requerida." }, "response": [] },
+        { "name": "Listar MasterAdmin", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/master-admin", "host": ["{{baseUrl}}"], "path": ["master-admin"] }, "description": "Lista administradores mestres." }, "response": [] },
+        { "name": "Get MasterAdmin por ID", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/master-admin/:id", "host": ["{{baseUrl}}"], "path": ["master-admin", ":id"] }, "description": "Retorna 404 se não encontrado." }, "response": [] },
+        { "name": "Atualizar MasterAdmin", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Novo Admin\"\n}" }, "url": { "raw": "{{baseUrl}}/master-admin/:id", "host": ["{{baseUrl}}"], "path": ["master-admin", ":id"] }, "description": "Atualiza o recurso; 404 se não encontrado." }, "response": [] },
+        { "name": "Excluir MasterAdmin", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/master-admin/:id", "host": ["{{baseUrl}}"], "path": ["master-admin", ":id"] }, "description": "Remove o recurso; retorna mensagem de sucesso." }, "response": [] }
+      ]
+    },
+    {
+      "name": "Papeis",
+      "item": [
+        { "name": "Create Papel", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"empresa_id\": \"<ObjectId_empresa>\",\n  \"nome\": \"Operador\",\n  \"permissoes\": [\"LANCAR_MOVIMENTACAO\"]\n}" }, "url": { "raw": "{{baseUrl}}/papeis", "host": ["{{baseUrl}}"], "path": ["papeis"] }, "description": "`empresa_id` e `nome` obrigatórios; `permissoes` array opcional." }, "response": [] },
+        { "name": "Listar Papeis", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/papeis", "host": ["{{baseUrl}}"], "path": ["papeis"] }, "description": "Lista papeis por empresa." }, "response": [] },
+        { "name": "Get Papel por ID", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/papeis/:id", "host": ["{{baseUrl}}"], "path": ["papeis", ":id"] }, "description": "Retorna 404 se não encontrado." }, "response": [] },
+        { "name": "Atualizar Papel", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Novo Papel\"\n}" }, "url": { "raw": "{{baseUrl}}/papeis/:id", "host": ["{{baseUrl}}"], "path": ["papeis", ":id"] }, "description": "Atualiza papel." }, "response": [] },
+        { "name": "Excluir Papel", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/papeis/:id", "host": ["{{baseUrl}}"], "path": ["papeis", ":id"] }, "description": "Remove papel; 404 se não encontrado." }, "response": [] }
+      ]
+    },
+    {
+      "name": "Licencas",
+      "item": [
+        { "name": "Create Licenca", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"_id\": \"licenca-123\",\n  \"empresa_id\": \"<id_empresa>\",\n  \"plano\": \"PRO\",\n  \"data_inicio\": \"2025-01-01\",\n  \"data_fim\": \"2026-01-01\",\n  \"status\": \"ATIVA\",\n  \"limite_usuarios\": 10,\n  \"limite_movimentacoes\": 1000\n}" }, "url": { "raw": "{{baseUrl}}/licencas", "host": ["{{baseUrl}}"], "path": ["licencas"] }, "description": "Campos: `_id` (string), `empresa_id` obrigatório, `status` enum: ATIVA/INATIVA/EXPIRADA." }, "response": [] },
+        { "name": "Listar Licencas", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/licencas", "host": ["{{baseUrl}}"], "path": ["licencas"] }, "description": "Índice por `empresa_id` e `status`." }, "response": [] },
+        { "name": "Get Licenca por ID", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/licencas/:id", "host": ["{{baseUrl}}"], "path": ["licencas", ":id"] }, "description": "Retorna a licença por `_id`." }, "response": [] },
+        { "name": "Atualizar Licenca", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"status\": \"INATIVA\"\n}" }, "url": { "raw": "{{baseUrl}}/licencas/:id", "host": ["{{baseUrl}}"], "path": ["licencas", ":id"] }, "description": "Atualiza campos da licença." }, "response": [] },
+        { "name": "Excluir Licenca", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/licencas/:id", "host": ["{{baseUrl}}"], "path": ["licencas", ":id"] }, "description": "Remove licença; 404 se não encontrada." }, "response": [] }
+      ]
+    },
+    {
+      "name": "Grupos",
+      "item": [
+        { "name": "Create Grupo", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"empresa_id\": \"<id_empresa>\",\n  \"nome\": \"Receitas\"\n}" }, "url": { "raw": "{{baseUrl}}/grupos", "host": ["{{baseUrl}}"], "path": ["grupos"] }, "description": "`empresa_id` e `nome` obrigatórios." }, "response": [] },
+        { "name": "Listar Grupos", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/grupos", "host": ["{{baseUrl}}"], "path": ["grupos"] }, "description": "Lista grupos." }, "response": [] },
+        { "name": "Get Grupo por ID", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/grupos/:id", "host": ["{{baseUrl}}"], "path": ["grupos", ":id"] }, "description": "Retorna 404 se não encontrado." }, "response": [] },
+        { "name": "Atualizar Grupo", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Novo Grupo\"\n}" }, "url": { "raw": "{{baseUrl}}/grupos/:id", "host": ["{{baseUrl}}"], "path": ["grupos", ":id"] }, "description": "Atualiza grupo." }, "response": [] },
+        { "name": "Excluir Grupo", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/grupos/:id", "host": ["{{baseUrl}}"], "path": ["grupos", ":id"] }, "description": "Remove grupo; 404 se não encontrado." }, "response": [] }
+      ]
+    },
+    {
+      "name": "Subgrupos",
+      "item": [
+        { "name": "Create Subgrupo", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"empresa_id\": \"<id_empresa>\",\n  \"grupo_id\": \"<id_grupo>\",\n  \"nome\": \"Salários\"\n}" }, "url": { "raw": "{{baseUrl}}/subgrupos", "host": ["{{baseUrl}}"], "path": ["subgrupos"] }, "description": "`empresa_id`, `grupo_id` e `nome` obrigatórios." }, "response": [] },
+        { "name": "Listar Subgrupos", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/subgrupos", "host": ["{{baseUrl}}"], "path": ["subgrupos"] }, "description": "Lista subgrupos." }, "response": [] },
+        { "name": "Get Subgrupo por ID", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/subgrupos/:id", "host": ["{{baseUrl}}"], "path": ["subgrupos", ":id"] }, "description": "Retorna 404 se não encontrado." }, "response": [] },
+        { "name": "Atualizar Subgrupo", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Novo Subgrupo\"\n}" }, "url": { "raw": "{{baseUrl}}/subgrupos/:id", "host": ["{{baseUrl}}"], "path": ["subgrupos", ":id"] }, "description": "Atualiza subgrupo." }, "response": [] },
+        { "name": "Excluir Subgrupo", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/subgrupos/:id", "host": ["{{baseUrl}}"], "path": ["subgrupos", ":id"] }, "description": "Remove subgrupo; 404 se não encontrado." }, "response": [] }
+      ]
+    },
+    {
+      "name": "Movimentacoes",
+      "item": [
+        { "name": "Create Movimentacao", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"empresa_id\": \"<id_empresa>\",\n  \"tipo\": \"Receita\",\n  \"valor\": 100.5,\n  \"descricao\": \"Venda\",\n  \"grupo_id\": \"<id_grupo>\",\n  \"subgrupo_id\": \"<id_subgrupo>\",\n  \"usuario_id\": \"<id_usuario>\"\n}" }, "url": { "raw": "{{baseUrl}}/movimentacoes", "host": ["{{baseUrl}}"], "path": ["movimentacoes"] }, "description": "Regras: `empresa_id` e `usuario_id` obrigatórios; `tipo` enum: Receita/Despesa; `valor` obrigatório. Ao criar, o controller pode registrar histórico opcionalmente." }, "response": [] },
+        { "name": "Listar Movimentacoes", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/movimentacoes", "host": ["{{baseUrl}}"], "path": ["movimentacoes"], "query": [{"key":"limit","value":"10","disabled":true},{"key":"skip","value":"0","disabled":true}] }, "description": "GETs populam `grupo_id`, `subgrupo_id` e `usuario_id`." }, "response": [] },
+        { "name": "Get Movimentacao por ID", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/movimentacoes/:id", "host": ["{{baseUrl}}"], "path": ["movimentacoes", ":id"] }, "description": "Popula referências; 404 se não encontrado." }, "response": [] },
+        { "name": "Atualizar Movimentacao", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"descricao\": \"Ajuste\"\n}" }, "url": { "raw": "{{baseUrl}}/movimentacoes/:id", "host": ["{{baseUrl}}"], "path": ["movimentacoes", ":id"] }, "description": "Atualiza movimentação." }, "response": [] },
+        { "name": "Excluir Movimentacao", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/movimentacoes/:id", "host": ["{{baseUrl}}"], "path": ["movimentacoes", ":id"] }, "description": "Remove movimentação; 404 se não encontrado." }, "response": [] }
+      ]
+    },
+    {
+      "name": "HistoricoMovimentacao",
+      "item": [
+        { "name": "Create Historico", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"movimentacao_id\": \"<id_mov>\",\n  \"usuario_id\": \"<id_usr>\",\n  \"acao\": \"CRIAR\",\n  \"detalhe\": \"Criado via API\"\n}" }, "url": { "raw": "{{baseUrl}}/historico", "host": ["{{baseUrl}}"], "path": ["historico"] }, "description": "`movimentacao_id` e `usuario_id` obrigatórios; `acao` enum: CRIAR/EDITAR/EXCLUIR." }, "response": [] },
+        { "name": "Listar Historico", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/historico", "host": ["{{baseUrl}}"], "path": ["historico"] }, "description": "Lista histórico de movimentações." }, "response": [] },
+        { "name": "Get Historico por ID", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/historico/:id", "host": ["{{baseUrl}}"], "path": ["historico", ":id"] }, "description": "Retorna 404 se não encontrado." }, "response": [] },
+        { "name": "Atualizar Historico", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"detalhe\": \"Atualizado\"\n}" }, "url": { "raw": "{{baseUrl}}/historico/:id", "host": ["{{baseUrl}}"], "path": ["historico", ":id"] }, "description": "Atualiza histórico." }, "response": [] },
+        { "name": "Excluir Historico", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/historico/:id", "host": ["{{baseUrl}}"], "path": ["historico", ":id"] }, "description": "Remove histórico; 404 se não encontrado." }, "response": [] }
+      ]
+    }
+  ]
+}
